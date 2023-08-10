@@ -10,7 +10,7 @@ export class WgServer extends Server<string> {
     spiderUrl = process.env.WG_SPIDER_URL!
 
     constructor(browser: Browser) {
-        super("wg", browser, new LineFileStorage("/resources/wg-listings.txt"));
+        super("wg", browser, new LineFileStorage("resources/wg-listings.txt"));
     }
 
     async spider(page: Page): Promise<string[]> {

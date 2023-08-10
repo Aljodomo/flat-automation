@@ -15,7 +15,7 @@ export class ImmoServer extends Server<string> {
     immoSubmit = new ImmoSubmit()
 
     constructor(browser: Browser) {
-        super("immo", browser, new LineFileStorage("/resources/immo-listings.txt"));
+        super("immo", browser, new LineFileStorage("resources/immo-listings.txt"));
     }
 
     async prepare(page: Page): Promise<void> {

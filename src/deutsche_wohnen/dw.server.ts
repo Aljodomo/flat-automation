@@ -11,7 +11,7 @@ export class DwServer extends Server<string>{
 
 
     constructor(browser: Browser) {
-        super("dw", browser, new LineFileStorage("/resources/dw-listings.txt"));
+        super("dw", browser, new LineFileStorage("resources/dw-listings.txt"));
     }
 
     async prepare(page: Page): Promise<void> {
