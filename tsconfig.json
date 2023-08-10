@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true,
+        "allowImportingTsExtensions": true,
+        "target": "ES2021",
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "strict": true,
+        "outDir": "lib"
+    }
+}
