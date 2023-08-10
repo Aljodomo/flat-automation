@@ -58,3 +58,8 @@ export async function filterLargeSizeRequests(page: Page) {
         }
     });
 }
+
+export async function getText(page: Page, selector: string) {
+    const ele = await page.waitForSelector(selector)
+    return ele?.evaluate((el) => el.textContent);
+}

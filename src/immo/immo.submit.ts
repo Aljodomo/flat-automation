@@ -2,7 +2,7 @@ import {Page} from "puppeteer";
 import { UserData } from "../user-data.ts";
 import { sendExposeContacted, sendPhoneContactOnly } from "../telegram.ts";
 import {chatGpt} from "../openai.ts";
-import {clearAndType} from "../puppeteer.ts";
+import { clearAndType, getText } from "../puppeteer.ts";
 
 
 export class ImmoSubmit {
@@ -87,11 +87,6 @@ export class ImmoSubmit {
         await this.setLoggedInFormValues(page, userData, checkedFormFields)
     }
 
-    async getText(page: Page, selector: string) {
-        const ele = await page.waitForSelector(selector)
-        return ele?.evaluate((el) => el.textContent);
-    }
-
     async getDescriptionText(page: Page) {
 
         console.log("Getting object description text")
@@ -133,7 +128,7 @@ export class ImmoSubmit {
     private async appendTextToMessageIfPresent(page: Page, message: string, title: string, objectDesSelector: string) {
         await this.clickShowMore(page, objectDesSelector);
         if (await page.$(objectDesSelector)) {
-            const objectDescription = await this.getText(page, objectDesSelector)
+            const objectDescription = await getText(page, objectDesSelector)
             message = this.appendTitleWithDescription(message, title, objectDescription!);
         }
         return message
