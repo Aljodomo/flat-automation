@@ -59,7 +59,6 @@ export abstract class Server<T> {
 
         while (true) {
             await this.run(page).catch(async (e) => {
-                console.trace(e)
 
                 if(e instanceof Error && e.message.includes("Session closed")) {
                     console.log(this.logPrefix + "target closed, restarting")
@@ -68,6 +67,7 @@ export abstract class Server<T> {
                     return
                 }
 
+                console.trace(e)
                 let message = this.logPrefix + `Error on run: ` + e;
                 console.error(message)
                 await sendLog(message)
