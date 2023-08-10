@@ -2,8 +2,8 @@ import { config } from "dotenv";
 import { newBrowser } from "./puppeteer.ts";
 import { sendLog } from "./telegram.ts";
 import { ImmoServer } from "./immo/immo.server.ts";
-import { DwServer } from "./deutsche-wohnen/dw.server.ts";
-import { WgServer } from "./wg-gesucht/wg.server.ts";
+import { DwServer } from "./deutsche_wohnen/dw.server.ts";
+import { WgServer } from "./wg_gesucht/wg.server.ts";
 
 Error.stackTraceLimit = Infinity;
 
