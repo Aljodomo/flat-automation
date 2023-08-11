@@ -3,6 +3,7 @@ import { Browser, Page } from "puppeteer";
 import { LineFileStorage } from "../line-file-storage.ts";
 import { clearAndType, gotoOrReload } from "../puppeteer.ts";
 import { userData } from "../user-data.ts";
+import { sendExposeContacted } from "../telegram.ts";
 
 export class DwServer extends Server<string>{
 
@@ -28,7 +29,8 @@ export class DwServer extends Server<string>{
     }
 
     async submit(page: Page, href: string): Promise<void> {
-        await page.goto(this.baseUrl + href)
+        let exposeUrl = this.baseUrl + href;
+        await page.goto(exposeUrl)
 
         await page.waitForSelector("#first-name")
         await clearAndType(page, "#first-name", userData.firstname)
@@ -61,10 +63,12 @@ export class DwServer extends Server<string>{
         }
         await page.select("#incomeLevel", income)
 
-        await clearAndType(page, "#message", userData.staticContactMessage)
+        let message = userData.staticContactMessage;
+        await clearAndType(page, "#message", message)
 
         if(process.env.SUBMIT_ENABLED) {
             await page.click("button[type=submit]")
+            await sendExposeContacted(exposeUrl, message)
         }
     }
 
