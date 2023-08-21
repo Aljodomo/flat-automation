@@ -73,7 +73,7 @@ export abstract class Server<T> {
                 await sendLog(message)
                 const time = new Date()
                 console.log("Saving screenshot: ", time)
-                await page.screenshot({path: time + '.png', fullPage: true})
+                await page.screenshot({path: "screenshots/" + time + '.png', fullPage: true})
                     .catch((e) => console.error("Failed to save screenshot", e));
             });
 
