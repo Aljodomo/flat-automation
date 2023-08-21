@@ -11,10 +11,10 @@ export interface ServerOptions {
     submitDelay?: number,
 }
 
-export const defaultOptions: ServerOptions = {
+const getDefaultOptions = (): ServerOptions => ({
     interval: getDefaultInterval(),
     submitDelay: getDefaultSubmitDelay(),
-}
+})
 
 export interface PageFactory {
     newPage(): Promise<Page>
@@ -31,7 +31,7 @@ export abstract class Server<T> {
     protected constructor(identifier: string,
                           pageFactory: PageFactory,
                           repository: Repository<T>,
-                          options: ServerOptions = defaultOptions) {
+                          options: ServerOptions = getDefaultOptions()) {
 
         this.identifier = identifier;
         this.pageFactory = pageFactory;
