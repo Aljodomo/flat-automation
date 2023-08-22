@@ -6,6 +6,9 @@ export interface UserData {
     immoscout_password: string,
     immoscout_plus_account: boolean,
 
+    ka_email: string,
+    ka_password: string,
+
     chatGtp_active: boolean,
     chatGtp_includeObjectDescriptionInPrompt: boolean
     chatGtp_systemPrompt: string,
