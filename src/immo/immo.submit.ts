@@ -397,11 +397,10 @@ export class ImmoSubmit {
 
     async clearAndTypeIfVisible(page: Page, selector: string, value: string, checkedFormFields: Set<string>) {
         if (await this.isVisible(page, selector)) {
-            console.log("Setting field: ", selector, " to value: ", value)
             await clearAndType(page, selector, value)
             checkedFormFields.add(selector)
         } else {
-            console.log("Skipping field bc selector not visible: ", selector)
+            console.log(`${selector}: skipping field because selector is not visible`)
         }
     }
 
