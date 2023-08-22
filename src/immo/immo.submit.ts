@@ -18,8 +18,13 @@ export class ImmoSubmit {
 
         await page.goto(url)
 
-        if(await this.isPhoneContactOnly(page)) {
-            // await immoRepository.addExpose(exposeId)
+        const description = await this.getDescriptionText(page)
+
+        if(await this.isPhoneContactOnly(url, description)) {
+            return
+        }
+
+        if(await this.isTemporary(description)) {
             return
         }
 
@@ -27,7 +32,7 @@ export class ImmoSubmit {
             await this.login(page, userData.immoscout_username, userData.immoscout_password, url)
         }
 
-        const message = await this.getMessage(page, userData)
+        const message = await this.getMessage(page, userData, description)
 
         await this.openMessageDialog(page, url, userData)
 
@@ -163,11 +168,10 @@ export class ImmoSubmit {
         checkedFormFields.add(selector)
     }
 
-    private async getMessage(page: Page, userData: UserData) {
+    private async getMessage(page: Page, userData: UserData, descriptionText: string) {
         let message = userData.staticContactMessage;
 
         if (userData.chatGtp_active) {
-            const descriptionText = await this.getDescriptionText(page)
             console.log("Using ChatGTP to construct contact message")
             const userPrompt =
                 descriptionText + "\n\n---------------\n\n" +
@@ -465,8 +469,7 @@ export class ImmoSubmit {
         }, selector);
     }
 
-    private async isPhoneContactOnly(page: Page) {
-        const descriptionText = await this.getDescriptionText(page)
+    private async isPhoneContactOnly(url: string, descriptionText: string) {
         let response = await chatGpt(descriptionText + "\n\n------\n\nIst nur telefonischer Kontakt möglich? Beginne die Antwort mit 'true' oder 'false' und folge mit der Telefonnummer in runden Klammern.")
 
         const isPhoneOnly = response.trim().startsWith("true")
@@ -475,10 +478,15 @@ export class ImmoSubmit {
             console.log("Expose is phone contact only")
             const phoneNumber = response.match(/\(([^)]+)\)/)?.[1];
             console.log("Phone number: ", phoneNumber)
-            await sendPhoneContactOnly(page.url(), phoneNumber ?? "No phone number found")
+            await sendPhoneContactOnly(url, phoneNumber ?? "No phone number found")
             return true
         }
 
         return false
+    }
+
+    private async isTemporary(description: string) {
+        const temporary = await chatGpt(description + "\n\n----------------\n\n" + "Handelt es sich um eine Wohnung zur Miete auf Zeit? Antworte nur mit true oder false.");
+        return temporary.trim() === "true";
     }
 }
