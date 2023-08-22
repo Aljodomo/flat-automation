@@ -1,6 +1,6 @@
 import {Page} from "puppeteer";
 import { UserData } from "../user-data.ts";
-import { sendExposeContacted, sendPhoneContactOnly } from "../telegram.ts";
+import { sendExposeContacted, sendLog, sendPhoneContactOnly } from "../telegram.ts";
 import {chatGpt} from "../openai.ts";
 import { clearAndType, getText } from "../puppeteer.ts";
 import { isSubmitEnabled } from "../server.ts";
@@ -69,8 +69,8 @@ export class ImmoSubmit {
         const notCheckedFormFields = visibleFormFields.filter(selector => !checkedFormFields.has(selector))
 
         if (notCheckedFormFields.length > 0) {
-            console.warn("Not all form fields were checked: ", visibleFormFields.filter(selector => !checkedFormFields.has(selector)))
-            // TODO handle this case maybe cancel
+            console.warn("Not all form fields were checked: ", notCheckedFormFields)
+            await sendLog("Not all form fields were checked: " + notCheckedFormFields)
         } else {
             console.log("All visible form fields were checked: ", visibleFormFields)
         }
