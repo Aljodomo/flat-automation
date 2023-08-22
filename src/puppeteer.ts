@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer-extra'
 import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha'
 import { Page } from "puppeteer";
-import exp from "constants";
+import { sendLog } from "./telegram.ts";
 
 export async function newBrowser() {
 
@@ -28,11 +28,25 @@ export async function newBrowser() {
 
 export async function clearAndType(page: Page, selector: string, value: string) {
     await page.waitForSelector(selector)
-    const inputValue = await page.$eval(selector, el => (el as HTMLInputElement).value);
-    await page.click(selector);
-    for (let i = 0; i < inputValue.length; i++) {
-        await page.keyboard.press('Backspace');
+    let originalInputValue = await page.$eval(selector, el => (el as HTMLInputElement).value);
+
+    const input = await page.$(selector);
+    await input!.click({ count: 3 })
+    await page.keyboard.press('Backspace');
+
+    const clearedInputValue = await page.$eval(selector, el => (el as HTMLInputElement).value);
+    if(clearedInputValue) {
+        await sendLog(`${selector}: inputValue is not empty after clear: before[${originalInputValue}] after[${clearedInputValue}]`)
+        throw new Error(`${selector}: inputValue is not empty after clear: before[${originalInputValue}] after[${clearedInputValue}]`)
     }
+    if(originalInputValue !== clearedInputValue) {
+        console.log(selector + ": input value before clear: " + originalInputValue)
+        console.log(selector + ": input value after clear: " + clearedInputValue)
+    }
+    if(!originalInputValue) {
+        console.log(selector + ": original input value was empty")
+    }
+    console.log(`${selector}: typing value: ${value}`)
     await page.type(selector, value);
 }
 
