@@ -172,12 +172,12 @@ export class ImmoSubmit {
             const userPrompt =
                 descriptionText + "\n\n---------------\n\n" +
                 userData.chatGtp_messagePrompt + "\n\n" +
-                "Der text darf keine Platzhalter enthalten und sollte zwischen 130 und 160 Wörtern lang sein"
+                "Der text enthält keine Platzhalter und ist kürzer als 1850 Buchstaben."
             message = await chatGpt(userPrompt, userData.chatGtp_systemPrompt)
-            if(message.length > 1100) {
+            if(message.length > 1845) {
                 console.warn("ChatGTP message is too long: " + message.length + " characters")
                 console.log("Requesting shorter message from ChatGTP")
-                message = await chatGpt(message + "\n\n---------------\n\n" + "Kürze die Nachricht auf 130 Wörter.")
+                message = await chatGpt(message + "\n\n---------------\n\n" + "Ein Satz weniger.")
             }
             console.log("ChatGTP message: " + "\n\n---------------\n\n" + message + "\n\n---------------\n\n")
         }
