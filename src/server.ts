@@ -4,6 +4,7 @@ import { sendLog } from "./telegram.ts";
 
 const getDefaultInterval = () => process.env.SPIDER_INTERVAL ? parseInt(process.env.SPIDER_INTERVAL) : 45000
 const getDefaultSubmitDelay = () => process.env.SUBMIT_DELAY ? parseInt(process.env.SUBMIT_DELAY) : 10000
+export const isSubmitEnabled = () => process.env.SUBMIT_ENABLED ? process.env.SUBMIT_ENABLED === "true" : true
 
 
 export interface ServerOptions {

@@ -3,6 +3,7 @@ import { UserData } from "../user-data.ts";
 import { sendExposeContacted, sendPhoneContactOnly } from "../telegram.ts";
 import {chatGpt} from "../openai.ts";
 import { clearAndType, getText } from "../puppeteer.ts";
+import { isSubmitEnabled } from "../server.ts";
 
 
 export class ImmoSubmit {
@@ -38,7 +39,9 @@ export class ImmoSubmit {
         // await page.waitForTimeout(60 * 1000)
         await this.submitMessageForm(page)
 
-        await sendExposeContacted(url, message)
+        if(isSubmitEnabled()) {
+            await sendExposeContacted(url, message)
+        }
 
         // await immoRepository.addExpose(exposeId)
     }
@@ -335,7 +338,7 @@ export class ImmoSubmit {
     private async submitMessageForm(page: Page) {
         console.log("Final form value: ", await this.getFormData(page, "form[name='contactFormContainer.form']"))
         console.log("SUBMITTING")
-        if(process.env.SUBMIT_ENABLED) {
+        if(isSubmitEnabled()) {
             await page.click("[data-qa=sendButtonBasic]")
             await page.waitForSelector("[data-qa=successMessage]")
         } else {
