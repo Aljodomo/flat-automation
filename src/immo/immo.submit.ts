@@ -323,11 +323,17 @@ export class ImmoSubmit {
     // TODO add to checkedFormFields
     private async setGeneralFormValues(page: Page, userData: UserData, checkedFormFields: Set<string>) {
 
+        let emailSelector = "#contactForm-emailAddress";
+        if(!userData.immoscout_useLogin) { // email cant be changed when logged in
+            await this.clearAndTypeIfVisible(page, emailSelector, userData.contactEmail, checkedFormFields);
+        } else {
+            checkedFormFields.add(emailSelector)
+        }
+
         await this.selectIfVisible(page, "contactForm-salutation", userData.gender, checkedFormFields);
 
         await this.clearAndTypeIfVisible(page, "#contactForm-firstName", userData.firstname, checkedFormFields);
         await this.clearAndTypeIfVisible(page, "#contactForm-lastName", userData.lastname, checkedFormFields);
-        await this.clearAndTypeIfVisible(page, "#contactForm-emailAddress", userData.contactEmail, checkedFormFields);
         await this.clearAndTypeIfVisible(page, "#contactForm-phoneNumber", userData.phoneNumber, checkedFormFields);
         await this.clearAndTypeIfVisible(page, "#contactForm-street", userData.street, checkedFormFields);
         await this.clearAndTypeIfVisible(page, "#contactForm-houseNumber", userData.houseNumber, checkedFormFields);
