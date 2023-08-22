@@ -25,7 +25,7 @@ export abstract class Server<T> {
 
     private identifier: string;
     private repository: Repository<T>;
-    private logPrefix: string;
+    logPrefix: string;
     private options: ServerOptions;
     private pageFactory: PageFactory;
 
@@ -74,7 +74,7 @@ export abstract class Server<T> {
                 await sendLog(message)
                 const time = new Date()
                 console.log("Saving screenshot: ", time)
-                await page.screenshot({path: "screenshots/" + time + '.png', fullPage: true})
+                await page.screenshot({path: "./screenshots/" + time + '.png', fullPage: true})
                     .catch((e) => console.error("Failed to save screenshot", e));
             });
 
@@ -101,5 +101,9 @@ export abstract class Server<T> {
             console.log(this.logPrefix + "listing stored as submitted: " + key)
             await new Promise(resolve => setTimeout(resolve, this.options.submitDelay));
         }
+    }
+
+    log(message: string) {
+        console.log(this.logPrefix + message)
     }
 }
