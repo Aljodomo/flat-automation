@@ -375,7 +375,7 @@ export class ImmoSubmit {
         // page.focus "#username"
         // wait long time
         // wait network idle
-        await page.screenshot({path: 'tmp/login.png'});
+        await page.screenshot({path: '/tmp/login.png'});
         console.log("Typing email...")
         await clearAndType(page, "#username", email)
         await page.click("#submit")
