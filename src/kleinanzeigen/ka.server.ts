@@ -1,12 +1,9 @@
 import { Server } from "../server.ts";
 import { Browser, Page } from "puppeteer";
 import { LineFileStorage } from "../line-file-storage.ts";
-import { deflateRaw } from "zlib";
-import { clearAndType, getText, gotoOrReload } from "../puppeteer.ts";
-import { sendCallToAction, sendExposeContacted } from "../telegram.ts";
-import { chatGpt } from "../openai.ts";
-import { buildContactMessage, isTemporaryApartment } from "../description-helper.ts";
-import { userData } from "../user-data.ts";
+import { getText, gotoOrReload } from "../puppeteer.ts";
+import { sendCallToAction } from "../telegram.ts";
+import { checkAndHandlePhoneContactOnlyExpose, isTemporaryApartment } from "../description-helper.ts";
 
 
 export class KaServer extends Server<string> {
@@ -38,6 +35,11 @@ export class KaServer extends Server<string> {
         const temporary = await isTemporaryApartment(description!)
         if(temporary) {
             this.log(`canceling submit because apartment is temporary`);
+            return
+        }
+
+        const phoneOnly = await checkAndHandlePhoneContactOnlyExpose(url, description!);
+        if(phoneOnly) {
             return
         }
 
