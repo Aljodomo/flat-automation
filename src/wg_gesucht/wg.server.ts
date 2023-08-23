@@ -1,4 +1,4 @@
-import { Server } from "../server.ts";
+import { isSubmitEnabled, Server } from "../server.ts";
 import { Browser, Page } from "puppeteer";
 import { LineFileStorage } from "../line-file-storage.ts";
 import { sendCallToAction, sendLog } from "../telegram.ts";
@@ -22,8 +22,10 @@ export class WgServer extends Server<string> {
     }
 
     async submit(page: Page, key: string): Promise<void> {
-        let url = this.baseUrl + key
-        await sendCallToAction("Neue WG-Gesucht Wohnung gefunden. Bitte manuell prüfen und bewerben.\n" + url);
+        let url = this.baseUrl + key;
+        if(isSubmitEnabled()) {
+            await sendCallToAction("Neue WG-Gesucht Wohnung gefunden. Bitte manuell prüfen und bewerben.\n" + url);
+        }
         // console.log("Navigating to: ", url)
         // await page.goto(url)
         // await page.waitForSelector("#ad_description_text")

@@ -1,4 +1,4 @@
-import { Server } from "../server.ts";
+import { isSubmitEnabled, Server } from "../server.ts";
 import { Browser, Page } from "puppeteer";
 import { LineFileStorage } from "../line-file-storage.ts";
 import { clearAndType, gotoOrReload } from "../puppeteer.ts";
@@ -66,7 +66,7 @@ export class DwServer extends Server<string>{
         let message = userData.staticContactMessage;
         await clearAndType(page, "#message", message)
 
-        if(process.env.SUBMIT_ENABLED) {
+        if(isSubmitEnabled()) {
             await page.click("button[type=submit]")
             await sendExposeContacted(exposeUrl, message)
         }
