@@ -31,10 +31,6 @@ export class ImmoSubmit {
             return
         }
 
-        if(await this.isTemporary(description)) {
-            return
-        }
-
         if (userData.immoscout_useLogin) {
             await this.login(page, userData.immoscout_username, userData.immoscout_password, url)
         }
