@@ -20,8 +20,8 @@ export async function buildContactMessage(userData: UserData, descriptionText: s
 }
 
 export async function isTemporaryApartment(description: string) {
-    const temporary = await chatGpt(description + "\n\n----------------\n\n" + "Handelt es sich um eine Wohnung zur Miete auf Zeit? Antworte nur mit true oder false.");
-    return temporary.trim() === "true";
+    const temporary = await chatGpt(description + "\n\n----------------\n\n" + "Handelt es sich um eine Wohnung auf Zeit? Antworte nur mit 'true' oder 'false'.");
+    return temporary.toLowerCase().trim() === "true";
 }
 
 export async function isPhoneContactOnlyExpose(url: string, descriptionText: string) {

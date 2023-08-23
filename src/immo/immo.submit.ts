@@ -4,6 +4,7 @@ import { sendExposeContacted, sendLog, sendPhoneContactOnly } from "../telegram.
 import {chatGpt} from "../openai.ts";
 import { clearAndType, getText } from "../puppeteer.ts";
 import { isSubmitEnabled } from "../server.ts";
+import { isTemporaryApartment } from "../description-helper.ts";
 
 
 export class ImmoSubmit {
@@ -19,6 +20,12 @@ export class ImmoSubmit {
         await page.goto(url)
 
         const description = await this.getDescriptionText(page)
+
+        const temporary = await isTemporaryApartment(description!)
+        if(temporary) {
+            console.log(`canceling submit because apartment is temporary`);
+            return
+        }
 
         if(await this.isPhoneContactOnly(url, description)) {
             return
@@ -483,10 +490,5 @@ export class ImmoSubmit {
         }
 
         return false
-    }
-
-    private async isTemporary(description: string) {
-        const temporary = await chatGpt(description + "\n\n----------------\n\n" + "Handelt es sich um eine Wohnung zur Miete auf Zeit? Antworte nur mit true oder false.");
-        return temporary.trim() === "true";
     }
 }
