@@ -93,7 +93,6 @@ export abstract class Server<T> {
         const newKeys = keys.filter((key) => !repoKeys.includes(key))
 
         if(newKeys.length === 0) {
-            console.log(this.logPrefix + "no new listings found")
             return
         }
 
