@@ -27,7 +27,7 @@ export async function isTemporaryApartment(description: string) {
 export async function checkAndHandlePhoneContactOnlyExpose(url: string, descriptionText: string) {
     let response = await chatGpt(descriptionText + "\n\n------\n\nIst nur telefonischer Kontakt möglich? Beginne die Antwort mit 'true' oder 'false' und folge mit der Telefonnummer in runden Klammern.")
 
-    const isPhoneOnly = response.trim().startsWith("true")
+    const isPhoneOnly = response.toLowerCase().trim().startsWith("true")
 
     if(isPhoneOnly) {
         console.log("Expose is phone contact only")
