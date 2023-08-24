@@ -30,11 +30,11 @@ export class KaServer extends Server<string> {
         await page.waitForSelector("#viewad-description-text");
         const description = await getText(page, "#viewad-description-text")
             .then((text) => text?.trim());
-        this.logger.log(`description: ${description}`)
+        this.logger.info(`description: ${description}`)
 
         const temporary = await isTemporaryApartment(description!)
         if(temporary) {
-            this.logger.log(`canceling submit because apartment is temporary`);
+            this.logger.info(`canceling submit because apartment is temporary`);
             return
         }
 

@@ -2,7 +2,7 @@
 Error.stackTraceLimit = Infinity;
 
 export interface Logger {
-    log(message: string, ...values: any[]): void
+    info(message: string, ...values: any[]): void
     warn(message: string, ...values: any[]): void
     error(message: string, ...values: any[]): void
 }
@@ -14,7 +14,7 @@ export class ConsoleLogger implements Logger {
         this.prefix = `[${identifier}] `
     }
 
-    log(message: string, ...values: any[]): void {
+    info(message: string, ...values: any[]): void {
         if(values.length > 0) {
             console.log(this.prefix + message, values)
         } else {

@@ -35,7 +35,7 @@ export class ImmoSetup {
     }
 
     private async setDismissCookie(page: Page) {
-        this.logger.log("Setting dismiss cookies cookie")
+        this.logger.info("Setting dismiss cookies cookie")
         await page.setCookie({
             name: "consent_status",
             value: "true",
@@ -45,14 +45,14 @@ export class ImmoSetup {
 
     async filterRequest(page: Page) {
 
-        this.logger.log("Setting up request intercepting")
+        this.logger.info("Setting up request intercepting")
 
         await page.setRequestInterception(true);
 
         page.on('request', (request) => {
             if (request.url().includes("https://api.geetest.com/get.")) {
                 const u = request.url();
-                this.logger.log(`Blocked request to ${u.substring(0, 50)}...`);
+                this.logger.info(`Blocked request to ${u.substring(0, 50)}...`);
                 request.abort();
                 return;
             }
