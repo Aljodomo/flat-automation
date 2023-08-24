@@ -10,9 +10,9 @@ export class ImmoServer extends Server<string> {
 
     spiderUrl = process.env.IMMO_SPIDER_URL!
 
-    immoSetupClient = new ImmoSetup()
-    immoSpider = new ImmoSpider()
-    immoSubmit = new ImmoSubmit()
+    immoSetupClient = new ImmoSetup(this.logger)
+    immoSpider = new ImmoSpider(this.logger)
+    immoSubmit = new ImmoSubmit(this.logger)
 
     constructor(browser: Browser) {
         super("immo", browser, new LineFileStorage("resources/immo-listings.txt"));

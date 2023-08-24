@@ -1,8 +1,15 @@
 import {Page} from "puppeteer";
 import { userData } from "../user-data.ts";
+import {Logger} from "../logger.ts";
 
 
 export class ImmoSpider {
+
+    logger: Logger
+
+    constructor(logger: Logger) {
+        this.logger = logger
+    }
 
     async getExposeIds(page: Page) {
 

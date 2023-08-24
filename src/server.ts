@@ -1,6 +1,7 @@
 import { Page } from "puppeteer";
 import { Repository } from "./line-file-storage.ts";
 import { sendLog } from "./telegram.ts";
+import {ConsoleLogger, Logger} from "./logger.ts";
 
 const getDefaultInterval = () => process.env.SPIDER_INTERVAL ? parseInt(process.env.SPIDER_INTERVAL) : 45000
 const getDefaultSubmitDelay = () => process.env.SUBMIT_DELAY ? parseInt(process.env.SUBMIT_DELAY) : 10000
@@ -28,6 +29,7 @@ export abstract class Server<T> {
     logPrefix: string;
     private options: ServerOptions;
     private pageFactory: PageFactory;
+    logger: Logger
 
     protected constructor(identifier: string,
                           pageFactory: PageFactory,
@@ -38,7 +40,8 @@ export abstract class Server<T> {
         this.pageFactory = pageFactory;
         this.repository = repository;
         this.options = options;
-        this.logPrefix = `[${this.identifier}] `
+        this.logPrefix = `[${this.identifier}] `;
+        this.logger = new ConsoleLogger(identifier)
     }
 
     async prepare(page: Page): Promise<void> {}

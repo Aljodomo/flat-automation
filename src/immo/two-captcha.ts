@@ -11,10 +11,10 @@ export class GeetestSolver {
     solver = new Solver(process.env.TWO_CAPTCHA_API_KEY!, 1000)
 
     async solveGeetestCaptcha(page: Page) {
-        console.log("Trying to solve geetest captcha")
+        // console.log("Trying to solve geetest captcha")
 
         if (!await this.hasGeetestCaptcha(page)) {
-            console.log("No geetest captcha found")
+            // console.log("No geetest captcha found")
             return
         }
 

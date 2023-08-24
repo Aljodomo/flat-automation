@@ -5,15 +5,22 @@ import {chatGpt} from "../openai.ts";
 import { clearAndType, getText } from "../puppeteer.ts";
 import { isSubmitEnabled } from "../server.ts";
 import { isTemporaryApartment } from "../description-helper.ts";
+import {Logger} from "../logger.ts";
 
 
 export class ImmoSubmit {
 
     baseUrl = "https://www.immobilienscout24.de/expose/"
 
+    logger: Logger
+
+    constructor(logger: Logger) {
+        this.logger = logger
+    }
+
     async submit(page:Page, exposeId: string, userData: UserData) {
 
-        console.log("Applying to expose: " + exposeId)
+        this.logger.log("Applying to expose: " + exposeId)
 
         const url = this.baseUrl + exposeId
 
@@ -23,7 +30,7 @@ export class ImmoSubmit {
 
         const temporary = await isTemporaryApartment(description!)
         if(temporary) {
-            console.log(`canceling submit because apartment is temporary`);
+            this.logger.log(`canceling submit because apartment is temporary`);
             return
         }
 
@@ -39,7 +46,7 @@ export class ImmoSubmit {
 
         await this.openMessageDialog(page, url, userData)
 
-        console.log("Solving recaptchas")
+        this.logger.log("Solving recaptchas")
         await page.solveRecaptchas()
 
         await this.inputFormValues(page, userData, message);
@@ -77,21 +84,21 @@ export class ImmoSubmit {
         const notCheckedFormFields = visibleFormFields.filter(selector => !checkedFormFields.has(selector))
 
         if (notCheckedFormFields.length > 0) {
-            console.warn("Not all form fields were checked: ", notCheckedFormFields)
+            this.logger.warn("Not all form fields were checked: ", notCheckedFormFields)
             await sendLog("Not all form fields were checked: " + notCheckedFormFields)
         } else {
-            console.log("All visible form fields were checked: ", visibleFormFields)
+            this.logger.log("All visible form fields were checked: ", visibleFormFields)
         }
     }
 
     private async handleAnonymousFormValueInputs(page: Page, userData: UserData, message: string, checkedFormFields: Set<string>) {
-        console.log("Setting contact form values for anonymous user")
+        this.logger.log("Setting contact form values for anonymous user")
         await this.setMessage(page, userData, message, checkedFormFields)
         await this.setGeneralFormValues(page, userData, checkedFormFields)
     }
 
     private async handleLoggedInFormValueInputs(page: Page, userData: UserData, message: string, checkedFormFields: Set<string>) {
-        console.log("Setting contact form values for logged in user")
+        this.logger.log("Setting contact form values for logged in user")
 
         await this.setMessage(page, userData, message, checkedFormFields)
         await this.setGeneralFormValues(page, userData, checkedFormFields)
@@ -100,7 +107,7 @@ export class ImmoSubmit {
 
     async getDescriptionText(page: Page) {
 
-        console.log("Getting object description text")
+        this.logger.log("Getting object description text")
         let message = "Beschreibungstext der Wohnung: "
 
         let contactPersonSelector = "[data-qa=contactName]";
@@ -131,8 +138,7 @@ export class ImmoSubmit {
         let sonsTitle = "Sonstiges";
         message = await this.appendTextToMessageIfPresent(page, message, sonsTitle, sonsSelector);
 
-        console.log("Collected object description text")
-        console.debug(message)
+        this.logger.log("Collected object description text")
         return message
     }
 
@@ -149,7 +155,7 @@ export class ImmoSubmit {
         let ele = await page.$(elementSelector)
         if (ele) {
             if (await ele.evaluate((el) => el.classList.contains("is24-long-text-attribute"))) {
-                console.log("Clicking on show more: ", elementSelector)
+                this.logger.log("Clicking on show more: ", elementSelector)
                 await page.click(`${elementSelector} + .show-more`)
             }
         }
@@ -164,7 +170,7 @@ export class ImmoSubmit {
     }
 
     private async setMessage(page: Page, userData: UserData, message: string, checkedFormFields: Set<string>) {
-        console.log("Typing contact message...")
+        this.logger.log("Typing contact message...")
         let selector = "#contactForm-Message";
         await page.waitForSelector(selector)
         await clearAndType(page, selector, message)
@@ -175,18 +181,18 @@ export class ImmoSubmit {
         let message = userData.staticContactMessage;
 
         if (userData.chatGtp_active) {
-            console.log("Using ChatGTP to construct contact message")
+            this.logger.log("Using ChatGTP to construct contact message")
             const userPrompt =
                 descriptionText + "\n\n---------------\n\n" +
                 userData.chatGtp_messagePrompt + "\n\n" +
                 "Der text enthält keine Platzhalter und ist kürzer als 1850 Buchstaben."
             message = await chatGpt(userPrompt, userData.chatGtp_systemPrompt)
             if(message.length > 1845) {
-                console.warn("ChatGTP message is too long: " + message.length + " characters")
-                console.log("Requesting shorter message from ChatGTP")
+                this.logger.warn("ChatGTP message is too long: " + message.length + " characters")
+                this.logger.log("Requesting shorter message from ChatGTP")
                 message = await chatGpt(message + "\n\n---------------\n\n" + "Ein Satz weniger.")
             }
-            console.log("ChatGTP message: " + "\n\n---------------\n\n" + message + "\n\n---------------\n\n")
+            this.logger.log("ChatGTP message: " + "\n\n---------------\n\n" + message + "\n\n---------------\n\n")
         }
         return message;
     }
@@ -313,7 +319,7 @@ export class ImmoSubmit {
 
 
     private async openMessageDialog(page: Page, url: string, userData: UserData) {
-        console.log("Opening message dialog via navigation")
+        this.logger.log("Opening message dialog via navigation")
         const slash = url.endsWith("/") ? "" : "#/"
         await page.goto(url + slash + "basicContact/email")
         // await page.waitForRequest("https://www.immobilienscout24.de/expose/profile")
@@ -324,7 +330,7 @@ export class ImmoSubmit {
         // if(userData.immoscout_useLogin) {
         //     await page.waitForSelector("#contactForm-income")
         // }
-        console.log("Message dialog is now open")
+        this.logger.log("Message dialog is now open")
     }
 
     // TODO add to checkedFormFields
@@ -349,30 +355,30 @@ export class ImmoSubmit {
     }
 
     private async submitMessageForm(page: Page) {
-        console.log("Final form value: ", await this.getFormData(page, "form[name='contactFormContainer.form']"))
-        console.log("SUBMITTING")
+        this.logger.log("Final form value: ", await this.getFormData(page, "form[name='contactFormContainer.form']"))
+        this.logger.log("SUBMITTING")
         if(isSubmitEnabled()) {
             await page.click("[data-qa=sendButtonBasic]")
             await page.waitForSelector("[data-qa=successMessage]")
         } else {
-            console.warn("Skipping submit because SUBMIT_ENABLED is false")
+            this.logger.warn("Skipping submit because SUBMIT_ENABLED is false")
         }
-        console.log("Success! Expose was contacted on your behave.")
+        this.logger.log("Success! Expose was contacted on your behave.")
     }
 
 
     private async login(page: Page, email: string, password: string, originUrl: string) {
 
         if((await page.$(".sso-login--logged-in")) != null) {
-            console.log("Already logged in!")
+            this.logger.log("Already logged in!")
             return
         }
 
-        console.log("Login in...")
+        this.logger.log("Login in...")
 
         // await page.waitForSelector("div.sso-login")
         // await page.click("div.sso-login")
-        console.log("Navigating to login page...")
+        this.logger.log("Navigating to login page...")
         await page.goto("https://sso.immobilienscout24.de/sso/login?appName=is24main")
 
         await page.waitForTimeout(5000)
@@ -383,18 +389,18 @@ export class ImmoSubmit {
         // wait long time
         // wait network idle
         await page.screenshot({path: '/tmp/login.png'});
-        console.log("Typing email...")
+        this.logger.log("Typing email...")
         await clearAndType(page, "#username", email)
         await page.click("#submit")
-        console.log("Going to password page...")
-        console.log("Typing password...")
+        this.logger.log("Going to password page...")
+        this.logger.log("Typing password...")
         await clearAndType(page, "#password", password)
         await Promise.all([
             page.waitForNavigation(),
             page.click("#loginOrRegistration")
         ])
-        console.log("Logged in!")
-        console.log("Navigating back to origin url...")
+        this.logger.log("Logged in!")
+        this.logger.log("Navigating back to origin url...")
         if(page.url() !== originUrl) {
             await page.goto(originUrl)
         }
@@ -407,7 +413,7 @@ export class ImmoSubmit {
             await clearAndType(page, selector, value)
             checkedFormFields.add(selector)
         } else {
-            console.log(`${selector}: skipping field because selector is not visible`)
+            this.logger.log(`${selector}: skipping field because selector is not visible`)
         }
     }
 
@@ -421,34 +427,34 @@ export class ImmoSubmit {
 
     private async clickIfVisible(page: Page, selector: string) {
         if (await this.isVisible(page, selector)) {
-            console.log("Clicking selector: ", selector)
+            this.logger.log("Clicking selector: ", selector)
             await page.click(selector)
         }
     }
 
     private async selectIfVisible(page: Page, selector: string, value: string, checkedFormFields: Set<string>) {
         if (await this.isVisible(page, selector)) {
-            console.log(`Selecting [${value}] for [${selector}] form field`)
+            this.logger.log(`Selecting [${value}] for [${selector}] form field`)
             await page.select(selector, value)
             checkedFormFields.add(selector)
         } else {
-            console.log("Skipping select because selector not visible/present in form: ", selector)
+            this.logger.log("Skipping select because selector not visible/present in form: ", selector)
         }
     }
 
     private async typeIfEmpty(page: Page, selector: string, value: string, checkedFormFields: Set<string>) {
         checkedFormFields.add(selector)
         if (!await this.isVisible(page, selector)) {
-            console.log("Skipping typing because selector not visible/present in form: ", selector)
+            this.logger.log("Skipping typing because selector not visible/present in form: ", selector)
             return
         }
         const textContent = await this.getValue(page, selector);
-        // console.log("textContent: ", textContent, " value: ", value, " selector: ", selector)
+        // this.logger.log("textContent: ", textContent, " value: ", value, " selector: ", selector)
         if (textContent) {
-            console.log(`Skipped typing [${value}] into [${selector}] because element already has text content [${textContent}].`)
+            this.logger.log(`Skipped typing [${value}] into [${selector}] because element already has text content [${textContent}].`)
             return
         }
-        console.log(`Typing [${value}] into [${selector}]`)
+        this.logger.log(`Typing [${value}] into [${selector}]`)
         await page.type(selector, value)
     }
 
@@ -478,9 +484,9 @@ export class ImmoSubmit {
         const isPhoneOnly = response.trim().startsWith("true")
 
         if(isPhoneOnly) {
-            console.log("Expose is phone contact only")
+            this.logger.log("Expose is phone contact only")
             const phoneNumber = response.match(/\(([^)]+)\)/)?.[1];
-            console.log("Phone number: ", phoneNumber)
+            this.logger.log("Phone number: ", phoneNumber)
             await sendPhoneContactOnly(url, phoneNumber ?? "No phone number found")
             return true
         }

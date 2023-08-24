@@ -1,8 +1,15 @@
 import { Page } from "puppeteer";
 import { GeetestSolver } from "./two-captcha.ts";
 import { filterRequest } from "./puppeteer.ts";
+import {Logger} from "../logger.ts";
 
 export class ImmoSetup {
+
+    logger: Logger
+
+    constructor(logger: Logger) {
+        this.logger = logger
+    }
 
     geetestSolver= new GeetestSolver()
 
@@ -29,7 +36,7 @@ export class ImmoSetup {
     }
 
     private async setDismissCookie(page: Page) {
-        console.log("Setting dismiss cookies cookie")
+        this.logger.log("Setting dismiss cookies cookie")
         await page.setCookie({
             name: "consent_status",
             value: "true",
