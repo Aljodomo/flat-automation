@@ -1,6 +1,5 @@
 import { Page } from "puppeteer";
 import { GeetestSolver } from "./two-captcha.ts";
-import { filterRequest } from "./puppeteer.ts";
 import {Logger} from "../logger.ts";
 
 export class ImmoSetup {
@@ -14,7 +13,7 @@ export class ImmoSetup {
     geetestSolver= new GeetestSolver()
 
     async prepare(page: Page) {
-        await filterRequest(page)
+        await this.filterRequest(page)
         await this.setDismissCookie(page);
         return page
     }
@@ -42,6 +41,27 @@ export class ImmoSetup {
             value: "true",
             domain: ".immobilienscout24.de"
         })
+    }
+
+    async filterRequest(page: Page) {
+
+        this.logger.log("Setting up request intercepting")
+
+        await page.setRequestInterception(true);
+
+        page.on('request', (request) => {
+            if (request.url().includes("https://api.geetest.com/get.")) {
+                const u = request.url();
+                this.logger.log(`Blocked request to ${u.substring(0, 50)}...`);
+                request.abort();
+                return;
+            }
+            if (['image', 'font'].includes(request.resourceType())) {
+                request.abort();
+            } else {
+                request.continue();
+            }
+        });
     }
 
 }
