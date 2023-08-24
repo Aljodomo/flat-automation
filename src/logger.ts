@@ -13,14 +13,26 @@ export class ConsoleLogger implements Logger {
     }
 
     log(message: string, ...values: any[]): void {
-        console.log(this.prefix + message, values)
+        if(values.length > 0) {
+            console.log(this.prefix + message, values)
+        } else {
+            console.log(this.prefix + message)
+        }
     }
 
     warn(message: string, ...values: any[]): void {
-        console.warn(this.prefix + message, values)
+        if(values.length > 0) {
+            console.warn(this.prefix + message, values)
+        } else {
+            console.warn(this.prefix + message)
+        }
     }
 
     error(message: string, ...values: any[]): void {
-        console.error(message, values)
+        if(values.length > 0) {
+            console.error(this.prefix + message, values)
+        } else {
+            console.error(this.prefix + message)
+        }
     }
 }
