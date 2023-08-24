@@ -7,8 +7,6 @@ import { WgServer } from "./wg_gesucht/wg.server.ts";
 import { isSubmitEnabled } from "./server.ts";
 import { KaServer } from "./kleinanzeigen/ka.server.ts";
 
-Error.stackTraceLimit = Infinity;
-
 config()
 
 console.log("Submit: " + (isSubmitEnabled() ? "enabled" : "disabled"));

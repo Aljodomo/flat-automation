@@ -1,4 +1,6 @@
 
+Error.stackTraceLimit = Infinity;
+
 export interface Logger {
     log(message: string, ...values: any[]): void
     warn(message: string, ...values: any[]): void

@@ -50,13 +50,13 @@ export abstract class Server<T> {
     abstract submit(page: Page, key: T): Promise<void>
 
     async start(): Promise<void> {
-        console.log(this.logPrefix + "starting server with interval " + this.options.interval + "ms")
+        this.logger.log("starting server with interval " + this.options.interval + "ms")
         let page = await this.pageFactory.newPage();
 
         await this.prepare(page).catch(async (e) => {
-            console.log(e.stack)
-            let message = this.logPrefix + `Error on prepare: ` + e;
-            console.error(message)
+            this.logger.log(e.stack)
+            let message = `Error on prepare: ` + e;
+            this.logger.error(message)
             await sendLog(message)
             process.kill(1)
         });
@@ -65,18 +65,17 @@ export abstract class Server<T> {
             await this.run(page).catch(async (e) => {
 
                 if(e instanceof Error && e.message.includes("Session closed")) {
-                    console.log(this.logPrefix + "target closed, restarting")
+                    this.logger.log("target closed, restarting")
                     page = await this.pageFactory.newPage();
                     await this.prepare(page).catch(() => console.error("Failed to prepare page"))
                     return
                 }
 
-                console.trace(e)
                 let message = this.logPrefix + `Error on run: ` + e;
-                console.error(message)
+                this.logger.error(message)
                 await sendLog(message)
                 const time = new Date()
-                console.log("Saving screenshot: ", time)
+                this.logger.log("Saving screenshot: ", time)
                 await page.screenshot({path: time + '.png', fullPage: true})
                     .catch((e) => console.error("Failed to save screenshot", e));
             });
@@ -86,7 +85,7 @@ export abstract class Server<T> {
     }
 
     async run(page: Page) {
-        console.log(this.logPrefix + "running")
+        this.logger.log("running")
         const keys = await this.spider(page)
 
         const repoKeys = await this.repository.getAll()
@@ -97,15 +96,15 @@ export abstract class Server<T> {
         }
 
         for (const key of newKeys) {
-            console.log(this.logPrefix + "new listing found: " + key)
+            this.logger.log("new listing found: " + key)
             await this.submit(page, key);
             await this.repository.add(key);
-            console.log(this.logPrefix + "listing stored as submitted: " + key)
+            this.logger.log("listing stored as submitted: " + key)
             await new Promise(resolve => setTimeout(resolve, this.options.submitDelay));
         }
     }
 
     log(message: string) {
-        console.log(this.logPrefix + message)
+        this.logger.log(message)
     }
 }

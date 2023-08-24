@@ -30,11 +30,11 @@ export class KaServer extends Server<string> {
         await page.waitForSelector("#viewad-description-text");
         const description = await getText(page, "#viewad-description-text")
             .then((text) => text?.trim());
-        this.log(`description: ${description}`)
+        this.logger.log(`description: ${description}`)
 
         const temporary = await isTemporaryApartment(description!)
         if(temporary) {
-            this.log(`canceling submit because apartment is temporary`);
+            this.logger.log(`canceling submit because apartment is temporary`);
             return
         }
 
@@ -68,10 +68,10 @@ export class KaServer extends Server<string> {
         // await page.waitForSelector("#viewad-contact");
         // const contact = await getText(page, "#viewad-contact .text-body-regular-strong")
         //     .then((text) => text?.trim());
-        // this.log(`contactpoint: ${contact}`)
+        // this.logger.log(`contactpoint: ${contact}`)
         //
         // const contactMessage = await buildContactMessage(userData, description!)
-        // this.log(`contact message: ${contactMessage}`)
+        // this.logger.log(`contact message: ${contactMessage}`)
         //
         // await clearAndType(page, "[name=message]", contactMessage);
         // await clearAndType(page, "[name=contactName]", `${userData.firstname} ${userData.lastname}`);
