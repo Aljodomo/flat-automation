@@ -1,7 +1,7 @@
 import { isSubmitEnabled, Server } from "../server.ts";
 import { Browser, Page } from "puppeteer";
 import { LineFileStorage } from "../line-file-storage.ts";
-import { clearAndType, gotoOrReload } from "../puppeteer.ts";
+import { clearAndType, filterLargeSizeRequests, gotoOrReload } from "../puppeteer.ts";
 import { userData } from "../user-data.ts";
 import { sendExposeContacted } from "../telegram.ts";
 
@@ -16,8 +16,7 @@ export class DwServer extends Server<string>{
     }
 
     async prepare(page: Page): Promise<void> {
-        await gotoOrReload(page, this.spiderUrl)
-        await page.waitForNetworkIdle()
+        await filterLargeSizeRequests(page)
     }
 
     async spider(page: Page): Promise<string[]> {
