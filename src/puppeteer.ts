@@ -91,3 +91,11 @@ export async function getText(page: Page, selector: string) {
     const ele = await page.waitForSelector(selector)
     return ele?.evaluate((el) => el.textContent);
 }
+
+export async function isVisible(page: Page, selector: string) {
+    try {
+        return await page.$eval(selector, (el) => !!(el as HTMLElement).offsetParent);
+    } catch (e) {
+        return false;
+    }
+}
