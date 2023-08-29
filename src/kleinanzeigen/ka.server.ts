@@ -17,7 +17,7 @@ export class KaServer extends Server<string> {
     spiderUrl = process.env.KA_SPIDER_URL!
 
     constructor(browser: Browser) {
-        super("ka", browser, new LineFileStorage("resources/ka-listings-test.txt"));
+        super("ka", browser, new LineFileStorage("resources/ka-listings.txt"));
     }
 
     async prepare(page: Page): Promise<void> {
