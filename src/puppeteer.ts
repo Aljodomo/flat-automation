@@ -1,9 +1,12 @@
 import puppeteer from 'puppeteer-extra'
 import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha'
+import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 import { Page } from "puppeteer";
 import { sendLog } from "./telegram.ts";
 
 export async function newBrowser() {
+
+    puppeteer.use(StealthPlugin())
 
     puppeteer.use(
         RecaptchaPlugin({
