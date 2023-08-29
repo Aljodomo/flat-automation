@@ -2,7 +2,7 @@ import { isSubmitEnabled, Server } from "../server.ts";
 import { Browser, Page } from "puppeteer";
 import { LineFileStorage } from "../line-file-storage.ts";
 import { sendCallToAction, sendLog } from "../telegram.ts";
-import { gotoOrReload } from "../puppeteer.ts";
+import { filterLargeSizeRequests, gotoOrReload } from "../puppeteer.ts";
 
 export class WgServer extends Server<string> {
 
@@ -11,6 +11,10 @@ export class WgServer extends Server<string> {
 
     constructor(browser: Browser) {
         super("wg", browser, new LineFileStorage("resources/wg-listings.txt"));
+    }
+
+    async prepare(page: Page): Promise<void> {
+        await filterLargeSizeRequests(page)
     }
 
     async spider(page: Page): Promise<string[]> {
