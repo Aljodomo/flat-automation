@@ -8,6 +8,7 @@ export interface UserData {
 
     ka_email: string,
     ka_password: string,
+    ka_contactMessagePs: string;
 
     chatGtp_active: boolean,
     chatGtp_includeObjectDescriptionInPrompt: boolean

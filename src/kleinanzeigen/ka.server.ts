@@ -1,9 +1,14 @@
-import { Server } from "../server.ts";
+import { isSubmitEnabled, Server } from "../server.ts";
 import { Browser, Page } from "puppeteer";
 import { LineFileStorage } from "../line-file-storage.ts";
-import { getText, gotoOrReload } from "../puppeteer.ts";
-import { sendCallToAction } from "../telegram.ts";
-import { checkAndHandlePhoneContactOnlyExpose, isTemporaryApartment } from "../description-helper.ts";
+import { clearAndType, filterLargeSizeRequests, getText, gotoOrReload, isVisible } from "../puppeteer.ts";
+import { sendExposeContacted } from "../telegram.ts";
+import {
+    buildContactMessage,
+    checkAndHandlePhoneContactOnlyExpose,
+    isTemporaryApartment
+} from "../description-helper.ts";
+import { userData } from "../user-data.ts";
 
 
 export class KaServer extends Server<string> {
@@ -12,7 +17,18 @@ export class KaServer extends Server<string> {
     spiderUrl = process.env.KA_SPIDER_URL!
 
     constructor(browser: Browser) {
-        super("ka", browser, new LineFileStorage("resources/ka-listings.txt"));
+        super("ka", browser, new LineFileStorage("resources/ka-listings-test.txt"));
+    }
+
+    async prepare(page: Page): Promise<void> {
+        await filterLargeSizeRequests(page);
+
+        await page.goto(this.baseUrl);
+        await page.waitForSelector("[data-testid=gdpr-banner-accept]")
+        await page.click("[data-testid=gdpr-banner-accept]")
+        await page.waitForSelector("[data-testid=gdpr-banner-accept]", {
+            hidden: true,
+        })
     }
 
     async spider(page: Page): Promise<string[]> {
@@ -25,7 +41,7 @@ export class KaServer extends Server<string> {
 
     async submit(page: Page, key: string): Promise<void> {
         const url = this.baseUrl + key;
-        await page.goto(url);
+        await gotoOrReload(page, url);
 
         await page.waitForSelector("#viewad-description-text");
         const description = await getText(page, "#viewad-description-text")
@@ -43,45 +59,54 @@ export class KaServer extends Server<string> {
             return
         }
 
-        await sendCallToAction(`Neue Wohnung auf kleinanzeigen gefunden: ${url}`)
+        if(!(await isVisible(page, "#user-logout"))) {
+            await page.goto("https://www.kleinanzeigen.de/m-einloggen.html")
+            await page.waitForSelector("#login-email");
+            await clearAndType(page, "#login-email", userData.ka_email);
 
-        // await page.goto("https://www.kleinanzeigen.de/m-einloggen.html")
-        // await page.waitForSelector("#login-email");
-        // await clearAndType(page, "#login-email", userData.ka_email);
-        //
-        // await page.waitForSelector("#login-password");
-        // await clearAndType(page, "#login-password", userData.ka_password);
-        //
-        // const recs = await page.findRecaptchas();
-        //
-        // console.log(recs);
-        // const solves= await page.solveRecaptchas();
-        //
-        // console.log(solves);
-        //
-        // await page.click("button[type=submit]");
-        //
-        // await page.waitForNavigation();
-        //
-        // await gotoOrReload(page, url);
-        //
-        // await page.waitForSelector("#viewad-contact");
-        // const contact = await getText(page, "#viewad-contact .text-body-regular-strong")
-        //     .then((text) => text?.trim());
-        // this.logger.log(`contactpoint: ${contact}`)
-        //
-        // const contactMessage = await buildContactMessage(userData, description!)
-        // this.logger.log(`contact message: ${contactMessage}`)
-        //
-        // await clearAndType(page, "[name=message]", contactMessage);
-        // await clearAndType(page, "[name=contactName]", `${userData.firstname} ${userData.lastname}`);
-        // await clearAndType(page, "[name=phoneNumber]", userData.phoneNumber);
-        //
-        // await page.click("button[type=submit]");
-        //
-        // await page.waitForSelector(".ajaxform-success-msg");
-        //
-        // await sendExposeContacted(url, contactMessage)
+            await page.waitForSelector("#login-password");
+            this.logger.info(`typing password`);
+            await page.type("#login-password", userData.ka_password);
+
+            await page.waitForSelector('iframe[src*="recaptcha/"]')
+
+            const {solved}= await page.solveRecaptchas();
+            for(const rec of solved) {
+                this.logger.info(`Recaptcha ${rec.id} solved`);
+            }
+
+            await Promise.all([
+                page.click("#login-submit"),
+                page.waitForNavigation()
+            ]);
+
+            await gotoOrReload(page, url);
+        }
+
+        await page.waitForSelector("#viewad-contact");
+        const contact = await getText(page, "#viewad-contact .text-body-regular-strong")
+            .then((text) => text?.trim());
+        this.logger.info(`contact point: ${contact}`)
+
+        const fullDescription = `Kontakt: ${contact}\n\nBeschreibungstext: ${description}`;
+        
+        let contactMessage = await buildContactMessage(userData, fullDescription);
+
+        if(userData.ka_contactMessagePs) {
+            contactMessage += `\n\n${userData.ka_contactMessagePs}`
+        }
+
+        this.logger.info(`contact message: ${contactMessage}`)
+
+        await clearAndType(page, "[name=message]", contactMessage);
+        await clearAndType(page, "[name=contactName]", `${userData.firstname} ${userData.lastname}`);
+        await clearAndType(page, "[name=phoneNumber]", userData.phoneNumber);
+
+        if(isSubmitEnabled()) {
+            await page.click("button[type=submit]");
+            await page.waitForSelector(".ajaxform-success-msg");
+            await sendExposeContacted(url, contactMessage)
+        }
 
     }
 
