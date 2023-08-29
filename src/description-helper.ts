@@ -1,6 +1,7 @@
 import { UserData } from "./user-data.ts";
 import { chatGpt } from "./openai.ts";
 import { sendCallToAction } from "./telegram.ts";
+import { isSubmitEnabled } from "./server.ts";
 
 export async function buildContactMessage(userData: UserData, descriptionText: string) {
     let message = userData.staticContactMessage;
@@ -34,7 +35,9 @@ export async function checkAndHandlePhoneContactOnlyExpose(url: string, descript
         const phoneNumber = response.match(/\(([^)]+)\)/)?.[1];
         console.log("Phone number: ", phoneNumber)
         const text = `Wohnung ist nur per Telefon zu kontaktieren.\n\n${url}\n\n${phoneNumber}`;
-        await sendCallToAction(text)
+        if(isSubmitEnabled()) {
+            await sendCallToAction(text)
+        }
         return true
     }
 
