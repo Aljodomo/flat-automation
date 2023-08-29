@@ -71,6 +71,7 @@ export abstract class Server<T> {
                     return
                 }
 
+                this.logger.error(e.stack)
                 let message = this.logPrefix + `Error on run: ` + e;
                 this.logger.error(message)
                 await sendLog(message)
