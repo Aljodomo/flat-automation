@@ -213,6 +213,13 @@ export class ImmoSubmit {
     }
 
     private async handlePetOwner(userData: UserData, page: Page, checkedFormFields: Set<string>) {
+
+        await this.selectIfVisible(page, "#contactForm-hasPets", userData.petOwner + "", checkedFormFields);
+
+        if(checkedFormFields.has("#contactForm-hasPets")) {
+            return
+        }
+
         let yesId = "contactForm-hasPets.yes";
         let hasPetsYesSelector = "[id='" + yesId + "']";
         let noId = "contactForm-hasPets.no";
