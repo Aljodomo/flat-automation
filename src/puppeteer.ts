@@ -33,9 +33,20 @@ export async function clearAndType(page: Page, selector: string, value: string) 
     await page.waitForSelector(selector)
     let originalInputValue = await page.$eval(selector, el => (el as HTMLInputElement).value);
 
+    await page.click(selector);
+    await page.keyboard.press('End');
+    await page.keyboard.down('Shift');
+    await page.keyboard.press('Home');
+    await page.keyboard.up('Shift');
+    await page.keyboard.press('Backspace');
+
     const input = await page.$(selector);
     await input!.click({ count: 3 })
     await page.keyboard.press('Backspace');
+
+    await page.evaluate((selector) => {
+        (document.querySelector(selector) as HTMLInputElement)!.value = '';
+    }, selector);
 
     const clearedInputValue = await page.$eval(selector, el => (el as HTMLInputElement).value);
     if(clearedInputValue) {
