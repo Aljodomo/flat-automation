@@ -434,18 +434,18 @@ export class ImmoSubmit {
 
     private async clickIfVisible(page: Page, selector: string) {
         if (await this.isVisible(page, selector)) {
-            this.logger.info("Clicking selector: ", selector)
+            this.logger.info(`${selector}: clicking`)
             await page.click(selector)
         }
     }
 
     private async selectIfVisible(page: Page, selector: string, value: string, checkedFormFields: Set<string>) {
         if (await this.isVisible(page, selector)) {
-            this.logger.info(`Selecting [${value}] for [${selector}] form field`)
+            this.logger.info(`${selector}: selecting value: ${value}`)
             await page.select(selector, value)
             checkedFormFields.add(selector)
         } else {
-            this.logger.info("Skipping select because selector not visible/present in form: ", selector)
+            this.logger.info(`${selector}: skipping field because selector is not visible`)
         }
     }
 
