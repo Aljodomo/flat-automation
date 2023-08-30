@@ -77,6 +77,10 @@ export abstract class Server<T> {
     }
 
     async run(page: Page) {
+        const {heapTotal, heapUsed} = process.memoryUsage();
+        const { JSHeapTotalSize, JSHeapUsedSize } = await page.metrics();
+        this.logger.info(`Memory usage: ${(heapUsed! / 1000000).toFixed(1)} mb of ${(heapTotal! / 1000000).toFixed(1)} mb`)
+        this.logger.info(`Page memory usage: ${(JSHeapUsedSize! / 1000000).toFixed(1)} mb of ${(JSHeapTotalSize! / 1000000).toFixed(1)} mb`)
         this.logger.info("running")
         const keys = await this.spider(page)
 
