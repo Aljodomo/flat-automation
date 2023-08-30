@@ -52,17 +52,17 @@ export abstract class Server<T> {
 
     async start(): Promise<void> {
         this.logger.info("starting server with interval " + this.options.interval + "ms")
-        let page = await this.pageFactory.newPage();
-
-        await this.prepare(page).catch(async (e) => {
-            this.logger.info(e.stack)
-            let message = `Error on prepare: ` + e;
-            this.logger.error(message)
-            await sendLog(message)
-            process.kill(1)
-        });
 
         while (true) {
+            let page = await this.pageFactory.newPage();
+
+            await this.prepare(page).catch(async (e) => {
+                this.logger.info(e.stack)
+                let message = `Error on prepare: ` + e;
+                this.logger.error(message)
+                await sendLog(message)
+            });
+
             await this.run(page).catch(async (e) => {
                 this.logger.error(e.stack)
                 this.logger.error(`Error on run: ` + e)
@@ -71,6 +71,8 @@ export abstract class Server<T> {
                 this.logger.info("Saving screenshot: ", time)
                 await page.screenshot({path: time + '.png', fullPage: true})
                     .catch((e) => console.error("Failed to save screenshot", e));
+            }).finally(async () => {
+                await page.close();
             });
 
             await setTimeout(this.options.interval);
