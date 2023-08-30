@@ -86,10 +86,6 @@ export abstract class Server<T> {
         const repoKeys = await this.repository.getAll()
         const newKeys = keys.filter((key) => !repoKeys.includes(key))
 
-        if(newKeys.length === 0) {
-            return
-        }
-
         for (const key of newKeys) {
             this.logger.info("new listing found: " + key)
             await this.submit(page, key);
