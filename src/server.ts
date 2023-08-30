@@ -2,6 +2,7 @@ import { Page } from "puppeteer";
 import { Repository } from "./line-file-storage.ts";
 import { sendLog } from "./telegram.ts";
 import {ConsoleLogger, Logger} from "./logger.ts";
+import {setTimeout} from "timers/promises";
 
 const getDefaultInterval = () => process.env.SPIDER_INTERVAL ? parseInt(process.env.SPIDER_INTERVAL) : 45000
 const getDefaultSubmitDelay = () => process.env.SUBMIT_DELAY ? parseInt(process.env.SUBMIT_DELAY) : 10000
@@ -72,7 +73,7 @@ export abstract class Server<T> {
                     .catch((e) => console.error("Failed to save screenshot", e));
             });
 
-            await new Promise(resolve => setTimeout(resolve, this.options.interval));
+            await setTimeout(this.options.interval);
         }
     }
 
@@ -96,7 +97,7 @@ export abstract class Server<T> {
             await this.submit(page, key);
             await this.repository.add(key);
             this.logger.info("listing stored as submitted: " + key)
-            await new Promise(resolve => setTimeout(resolve, this.options.submitDelay));
+            await setTimeout(this.options.submitDelay);
         }
     }
 
