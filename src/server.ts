@@ -80,7 +80,6 @@ export abstract class Server<T> {
     }
 
     async run(page: Page) {
-        await this.printMemoryUsage(page);
 
         this.logger.info("running")
         const keys = await this.spider(page)
@@ -95,13 +94,6 @@ export abstract class Server<T> {
             this.logger.info("listing stored as submitted: " + key)
             await setTimeout(this.options.submitDelay);
         }
-    }
-
-    private async printMemoryUsage(page: Page) {
-        const {heapTotal, heapUsed} = process.memoryUsage();
-        const {JSHeapTotalSize, JSHeapUsedSize} = await page.metrics();
-        this.logger.info(`Memory usage: ${(heapUsed! / 1000000).toFixed(1)} mb of ${(heapTotal! / 1000000).toFixed(1)} mb`)
-        this.logger.info(`Page memory usage: ${(JSHeapUsedSize! / 1000000).toFixed(1)} mb of ${(JSHeapTotalSize! / 1000000).toFixed(1)} mb`)
     }
 
     log(message: string) {
