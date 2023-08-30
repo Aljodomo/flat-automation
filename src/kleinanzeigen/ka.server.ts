@@ -103,7 +103,7 @@ export class KaServer extends Server<string> {
         await clearAndType(page, "[name=phoneNumber]", userData.phoneNumber);
 
         if(isSubmitEnabled()) {
-            await page.click("button[type=submit]");
+            await page.click("#viewad-contact-bottom button[type=submit]");
             await page.waitForSelector(".ajaxform-success-msg");
             await sendExposeContacted(url, contactMessage)
         }
