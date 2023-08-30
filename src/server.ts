@@ -63,18 +63,9 @@ export abstract class Server<T> {
 
         while (true) {
             await this.run(page).catch(async (e) => {
-
-                if(e instanceof Error && e.message.includes("Session closed")) {
-                    this.logger.info("target closed, restarting")
-                    page = await this.pageFactory.newPage();
-                    await this.prepare(page).catch(() => console.error("Failed to prepare page"))
-                    return
-                }
-
                 this.logger.error(e.stack)
-                let message = this.logPrefix + `Error on run: ` + e;
-                this.logger.error(message)
-                await sendLog(message)
+                this.logger.error(`Error on run: ` + e)
+                await sendLog(`Error on run: ` + e)
                 const time = new Date()
                 this.logger.info("Saving screenshot: ", time)
                 await page.screenshot({path: time + '.png', fullPage: true})
