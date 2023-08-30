@@ -20,7 +20,6 @@ export class ImmoServer extends Server<string> {
 
     async prepare(page: Page): Promise<void> {
         await this.immoSetupClient.prepare(page)
-        await this.immoSetupClient.access(page, this.spiderUrl)
     }
 
     async spider(page: Page): Promise<string[]> {
