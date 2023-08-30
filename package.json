@@ -2,7 +2,8 @@
     "scripts": {
         "build": "tsc",
         "build:watch": "tsc --watch",
-        "start": "ts-node --esm ./src/index.ts"
+        "start": "ts-node-esm ./src/index.ts",
+        "debug": "node --loader ts-node/esm --inspect ./src/index.ts"
     },
     "engines": {
         "node": "18"
