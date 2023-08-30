@@ -28,8 +28,9 @@ export class GeetestSolver {
     }
 
     private async solve(page: Page) {
+        console.log("Solving geetest captcha")
         const geetestV3request = this.getGeetestValues(await page.content())
-        console.log("Found geetestV3 request values", geetestV3request)
+        // console.log("Found geetestV3 request values", geetestV3request)
 
         const geetestResult = await this.solver.geetest(geetestV3request.gt, geetestV3request.challenge, page.url())
             .then((res) => res.data)
@@ -38,7 +39,7 @@ export class GeetestSolver {
                 throw e
             })
 
-        console.log("Received geetestV3 results", geetestResult)
+        // console.log("Received geetestV3 results", geetestResult)
 
         await page.evaluate((geetestResult: any, geetestv3request: any) => {
             // @ts-ignore

@@ -82,8 +82,6 @@ export async function gotoOrReload(page: Page, url: string) {
 
 export async function filterLargeSizeRequests(page: Page) {
 
-    console.log("Setting up request intercepting")
-
     await page.setRequestInterception(true);
 
     page.on('request', (request) => {
