@@ -6,6 +6,13 @@ import { sendLog } from "./telegram.ts";
 
 export async function newBrowser() {
 
+    puppeteer.use(
+        AdblockerPlugin({
+            // Optionally enable Cooperative Mode for several request interceptors
+            interceptResolutionPriority: DEFAULT_INTERCEPT_RESOLUTION_PRIORITY
+        })
+    )
+
     puppeteer.use(StealthPlugin())
 
     puppeteer.use(
