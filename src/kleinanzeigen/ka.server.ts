@@ -22,12 +22,19 @@ export class KaServer extends Server<string> {
 
     async prepare(page: Page): Promise<void> {
         await filterLargeSizeRequests(page);
+        await this.setDismissCookie(page);
+    }
 
-        await page.goto(this.baseUrl);
-        await page.waitForSelector("[data-testid=gdpr-banner-accept]")
-        await page.click("[data-testid=gdpr-banner-accept]")
-        await page.waitForSelector("[data-testid=gdpr-banner-accept]", {
-            hidden: true,
+    private async setDismissCookie(page: Page) {
+        await page.setCookie({
+            name: "ekConsentBucketTcf2",
+            value: "none2",
+            domain: ".kleinanzeigen.de"
+        })
+        await page.setCookie({
+            name: "ekConsentTcf2",
+            value: "{%22customVersion%22:6%2C%22encodedConsentString%22:%22CPxWatcPxWatcE1ABADEC4CgAAAAAAAAAAYgJNwLgAXAA4ACWAFMAPwAzYCLAIuAZ8A14B0gD7AI8ASKAlcBMgCmwFhALqAXeAvoBggDBgGfANGAaaA1UBtADggHHgOUAc6A58B2wDuQHggPJAfaA_YCCIEFAI0gR2Aj6BIiCSIJJgSbAAAASUgAwABBKElABgACCUJCADAAEEoR0AGAAIJQjIAMAAQShFQAYAAglCIgAwABBKENABgACCUISADAAEEoQA%22%2C%22googleConsentGiven%22:false%2C%22consentInterpretation%22:{%22googleAdvertisingFeaturesAllowed%22:false%2C%22googleAnalyticsAllowed%22:false%2C%22infonlineAllowed%22:false%2C%22theAdexAllowed%22:false%2C%22criteoAllowed%22:false%2C%22facebookAllowed%22:false%2C%22amazonAdvertisingAllowed%22:false%2C%22rtbHouseAllowed%22:false}}",
+            domain: ".kleinanzeigen.de"
         })
     }
 
