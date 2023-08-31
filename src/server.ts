@@ -83,10 +83,10 @@ export abstract class Server<T> {
                 this.logger.error(`Error on run: ` + e)
                 await sendLog(`Error on run: ` + e)
 
-                const time = new Date()
-                this.logger.info("Saving screenshot: ", time)
-                await page.screenshot({path: time + '.png', fullPage: true})
-                    .catch((e) => console.error("Failed to save screenshot", e));
+                // const time = new Date()
+                // this.logger.info("Saving screenshot: ", time)
+                // await page.screenshot({path: time + '.png', fullPage: true})
+                //     .catch((e) => console.error("Failed to save screenshot", e));
 
                 await setTimeout(1000);
                 continue
