@@ -97,7 +97,13 @@ export class KaServer extends Server<string> {
 
         const fullDescription = `Kontakt: ${contact}\n\nBeschreibungstext: ${description}`;
         
-        let contactMessage = await buildContactMessage(userData, fullDescription);
+        let contactMessage = await buildContactMessage(
+            userData.staticContactMessage,
+            description!,
+            userData.ka_chatGpt_messagePrompt,
+            userData.ka_chatGpt_systemPrompt,
+            userData.chatGtp_active
+        )
 
         if(userData.ka_contactMessagePs) {
             contactMessage += `\n\n${userData.ka_contactMessagePs}`

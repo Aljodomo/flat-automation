@@ -80,15 +80,14 @@ export abstract class Server<T> {
     }
 
     async run(page: Page) {
-
-        this.logger.info("running")
         const keys = await this.spider(page)
 
         const repoKeys = await this.repository.getAll()
         const newKeys = keys.filter((key) => !repoKeys.includes(key))
 
         for (const key of newKeys) {
-            this.logger.info("new listing found: " + key)
+            const time = new Date()
+            this.logger.info("new listing found: " + key + " at " + time)
             await this.submit(page, key);
             await this.repository.add(key);
             this.logger.info("listing stored as submitted: " + key)

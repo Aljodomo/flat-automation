@@ -35,7 +35,6 @@ export class ImmoSetup {
     }
 
     private async setDismissCookie(page: Page) {
-        this.logger.info("Setting dismiss cookies cookie")
         await page.setCookie({
             name: "consent_status",
             value: "true",
@@ -44,9 +43,6 @@ export class ImmoSetup {
     }
 
     async filterRequest(page: Page) {
-
-        this.logger.info("Setting up request intercepting")
-
         await page.setRequestInterception(true);
 
         page.on('request', (request) => {

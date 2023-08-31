@@ -4,7 +4,11 @@ import { sendExposeContacted, sendLog, sendPhoneContactOnly } from "../telegram.
 import {chatGpt} from "../openai.ts";
 import { clearAndType, getText } from "../puppeteer.ts";
 import { isSubmitEnabled } from "../server.ts";
-import { isTemporaryApartment } from "../description-helper.ts";
+import {
+    buildContactMessage,
+    checkAndHandlePhoneContactOnlyExpose,
+    isTemporaryApartment
+} from "../description-helper.ts";
 import {Logger} from "../logger.ts";
 
 
@@ -34,7 +38,7 @@ export class ImmoSubmit {
             return
         }
 
-        if(await this.isPhoneContactOnly(url, description)) {
+        if(await checkAndHandlePhoneContactOnlyExpose(url, description)) {
             return
         }
 
@@ -42,11 +46,17 @@ export class ImmoSubmit {
             await this.login(page, userData.immoscout_username, userData.immoscout_password, url)
         }
 
-        const message = await this.getMessage(page, userData, description)
+        const message = await buildContactMessage(
+            userData.staticContactMessage,
+            description,
+            userData.immoscout_chatGtp_messagePrompt,
+            userData.immoscout_chatGtp_systemPrompt,
+            userData.chatGtp_active
+        )
 
         await this.openMessageDialog(page, url, userData)
 
-        this.logger.info("Solving recaptchas")
+        this.logger.info("Solving reCaptchas")
         await page.solveRecaptchas()
 
         await this.inputFormValues(page, userData, message);
@@ -175,26 +185,6 @@ export class ImmoSubmit {
         await page.waitForSelector(selector)
         await clearAndType(page, selector, message)
         checkedFormFields.add(selector)
-    }
-
-    private async getMessage(page: Page, userData: UserData, descriptionText: string) {
-        let message = userData.staticContactMessage;
-
-        if (userData.chatGtp_active) {
-            this.logger.info("Using ChatGTP to construct contact message")
-            const userPrompt =
-                descriptionText + "\n\n---------------\n\n" +
-                userData.chatGtp_messagePrompt + "\n\n" +
-                "Der text enthält keine Platzhalter und ist kürzer als 1850 Buchstaben."
-            message = await chatGpt(userPrompt, userData.chatGtp_systemPrompt)
-            if(message.length > 1845) {
-                this.logger.warn("ChatGTP message is too long: " + message.length + " characters")
-                this.logger.info("Requesting shorter message from ChatGTP")
-                message = await chatGpt(message + "\n\n---------------\n\n" + "Ein Satz weniger.")
-            }
-            this.logger.info("ChatGTP message: " + "\n\n---------------\n\n" + message + "\n\n---------------\n\n")
-        }
-        return message;
     }
 
     private async setLoggedInFormValues(page: Page, userData: UserData, checkedFormFields: Set<string>) {

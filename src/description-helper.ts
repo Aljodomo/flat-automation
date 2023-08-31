@@ -1,20 +1,17 @@
-import { UserData } from "./user-data.ts";
 import { chatGpt } from "./openai.ts";
 import { sendCallToAction } from "./telegram.ts";
 import { isSubmitEnabled } from "./server.ts";
 
-export async function buildContactMessage(userData: UserData, descriptionText: string) {
-    let message = userData.staticContactMessage;
+export async function buildContactMessage(staticContactMessage: string, descriptionText: string, messagePrompt: string,  systemPrompt: string, useChatGtp: boolean) {
+    let message = staticContactMessage;
 
-    if (userData.chatGtp_active) {
-        // console.log("Using ChatGTP to construct contact message")
+    if (useChatGtp) {
         const userPrompt =
             descriptionText + "\n\n---------------\n\n" +
-            userData.chatGtp_messagePrompt + "\n\n" +
+            messagePrompt + "\n\n" +
             "Der text enthält keine Platzhalter und ist kürzer als 1850 Buchstaben."
 
-        message = await chatGpt(userPrompt, userData.chatGtp_systemPrompt)
-        // console.log("ChatGTP message: " + "\n\n---------------\n\n" + message + "\n\n---------------\n\n")
+        message = await chatGpt(userPrompt, systemPrompt)
     }
 
     return message;

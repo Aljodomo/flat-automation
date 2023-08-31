@@ -1,11 +1,5 @@
 import { Configuration, CreateChatCompletionRequest, OpenAIApi } from "openai";
 import { AxiosError } from "axios";
-import { userData } from "./user-data.ts";
-
-export async function buildChatGtpMessage(descriptionText: string)  {
-    const userPrompt = descriptionText + "\n\n---------------\n\n" + userData.chatGtp_messagePrompt
-    return await chatGpt(userPrompt, userData.chatGtp_systemPrompt)
-}
 
 export async function chatGpt(userPrompt: string, systemPrompt: string = "", temperature: number = 0.7) {
 
