@@ -44,13 +44,17 @@ export class ImmoSubmit {
             await this.login(page, userData.immoscout_username, userData.immoscout_password, url);
         }
 
-        const message = await buildContactMessage(
+        let message = await buildContactMessage(
             userData.staticContactMessage,
             description,
             userData.immoscout_chatGtp_messagePrompt,
             userData.immoscout_chatGtp_systemPrompt,
             userData.chatGtp_active
         );
+
+        if (userData.ka_contactMessagePs) {
+            message += `\n\n${userData.immoscout_contactMessagePs}`;
+        }
 
         await this.openMessageDialog(page, url, userData);
 

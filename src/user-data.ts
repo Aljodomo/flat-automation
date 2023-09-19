@@ -8,6 +8,7 @@ export interface UserData {
     immoscout_plus_account: boolean,
     immoscout_chatGtp_systemPrompt: string,
     immoscout_chatGtp_messagePrompt: string,
+    immoscout_contactMessagePs: string,
 
     ka_email: string,
     ka_password: string,
