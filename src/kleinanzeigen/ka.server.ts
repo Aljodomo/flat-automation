@@ -99,7 +99,7 @@ export class KaServer extends Server<string> {
 
         let contactMessage = await buildContactMessage(
             userData.staticContactMessage,
-            description!,
+            fullDescription!,
             userData.ka_chatGpt_messagePrompt,
             userData.ka_chatGpt_systemPrompt,
             userData.chatGtp_active
