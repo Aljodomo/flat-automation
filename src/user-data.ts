@@ -1,4 +1,5 @@
-import json from "../data.json" assert { type: "json" }
+import json from "../data.json" assert { type: "json" };
+
 export interface UserData {
 
     immoscout_useLogin: boolean,
@@ -40,4 +41,4 @@ export interface UserData {
     numberOfKids: number
 }
 
-export const userData: UserData = json
+export const userData: UserData = json;

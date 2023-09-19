@@ -21,7 +21,7 @@ export async function sendCallToAction(message: string) {
 export async function sendMessage(chatId: string, text: string): Promise<void> {
     const botApiKey = process.env.TELEGRAM_API_KEY;
     const sendMessageUrl = `https://api.telegram.org/bot${botApiKey}/sendMessage`;
-    const body = { "chat_id": chatId, "text": text }
+    const body = {"chat_id": chatId, "text": text};
     await axios
         .post(sendMessageUrl, body)
         .then((res) => {

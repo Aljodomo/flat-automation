@@ -7,20 +7,20 @@ import { WgServer } from "./wg_gesucht/wg.server.ts";
 import { isSubmitEnabled } from "./server.ts";
 import { KaServer } from "./kleinanzeigen/ka.server.ts";
 
-config()
+config();
 
 console.log("Submit: " + (isSubmitEnabled() ? "enabled" : "disabled"));
 
-export const browser = await newBrowser()
+export const browser = await newBrowser();
 
 setInterval(() => {
-  sendLog("I am alive!")
-}, 1000 * 60 * 60)
+    sendLog("I am alive!");
+}, 1000 * 60 * 60);
 
-new ImmoServer(browser).start()
+new ImmoServer(browser).start();
 
-new DwServer(browser).start()
+new DwServer(browser).start();
 
-new WgServer(browser).start()
+new WgServer(browser).start();
 
-new KaServer(browser).start()
+new KaServer(browser).start();

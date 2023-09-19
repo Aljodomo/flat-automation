@@ -6,28 +6,28 @@ import { filterLargeSizeRequests, gotoOrReload } from "../puppeteer.ts";
 
 export class WgServer extends Server<string> {
 
-    baseUrl = "https://www.wg-gesucht.de"
-    spiderUrl = process.env.WG_SPIDER_URL!
+    baseUrl = "https://www.wg-gesucht.de";
+    spiderUrl = process.env.WG_SPIDER_URL!;
 
     constructor(browser: Browser) {
         super("wg", browser, new LineFileStorage("resources/wg-listings.txt"));
     }
 
     async prepare(page: Page): Promise<void> {
-        await filterLargeSizeRequests(page)
+        await filterLargeSizeRequests(page);
     }
 
     async spider(page: Page): Promise<string[]> {
-        await gotoOrReload(page, this.spiderUrl)
+        await gotoOrReload(page, this.spiderUrl);
         return await page.$$eval(".offer_list_item .card_image a[href]",
             (elements) => elements.map((element) => {
-                return element.getAttribute("href")!
-            }).filter((href) => !href.includes("asset_id")))
+                return element.getAttribute("href")!;
+            }).filter((href) => !href.includes("asset_id")));
     }
 
     async submit(page: Page, key: string): Promise<void> {
         let url = this.baseUrl + key;
-        if(isSubmitEnabled()) {
+        if (isSubmitEnabled()) {
             await sendCallToAction("Neue WG-Gesucht Wohnung gefunden. Bitte manuell prüfen und bewerben.\n" + url);
         }
         // console.log("Navigating to: ", url)

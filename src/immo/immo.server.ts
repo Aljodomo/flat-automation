@@ -8,27 +8,27 @@ import { userData } from "../user-data.ts";
 
 export class ImmoServer extends Server<string> {
 
-    spiderUrl = process.env.IMMO_SPIDER_URL!
+    spiderUrl = process.env.IMMO_SPIDER_URL!;
 
-    immoSetupClient = new ImmoSetup(this.logger)
-    immoSpider = new ImmoSpider(this.logger)
-    immoSubmit = new ImmoSubmit(this.logger)
+    immoSetupClient = new ImmoSetup(this.logger);
+    immoSpider = new ImmoSpider(this.logger);
+    immoSubmit = new ImmoSubmit(this.logger);
 
     constructor(browser: Browser) {
         super("is", browser, new LineFileStorage("resources/immo-listings.txt"));
     }
 
     async prepare(page: Page): Promise<void> {
-        await this.immoSetupClient.prepare(page)
+        await this.immoSetupClient.prepare(page);
     }
 
     async spider(page: Page): Promise<string[]> {
-        await this.immoSetupClient.access(page, this.spiderUrl)
-        return this.immoSpider.getExposeIds(page)
+        await this.immoSetupClient.access(page, this.spiderUrl);
+        return this.immoSpider.getExposeIds(page);
     }
 
     async submit(page: Page, key: string): Promise<void> {
-        await this.immoSubmit.submit(page, key, userData)
+        await this.immoSubmit.submit(page, key, userData);
     }
 
 }

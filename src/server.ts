@@ -1,12 +1,12 @@
 import { Page } from "puppeteer";
 import { Repository } from "./line-file-storage.ts";
 import { sendLog } from "./telegram.ts";
-import {ConsoleLogger, Logger} from "./logger.ts";
-import {setTimeout} from "timers/promises";
+import { ConsoleLogger, Logger } from "./logger.ts";
+import { setTimeout } from "timers/promises";
 
-const getDefaultInterval = () => process.env.SPIDER_INTERVAL ? parseInt(process.env.SPIDER_INTERVAL) : 45000
-const getDefaultSubmitDelay = () => process.env.SUBMIT_DELAY ? parseInt(process.env.SUBMIT_DELAY) : 10000
-export const isSubmitEnabled = () => process.env.SUBMIT_ENABLED ? process.env.SUBMIT_ENABLED === "true" : true
+const getDefaultInterval = () => process.env.SPIDER_INTERVAL ? parseInt(process.env.SPIDER_INTERVAL) : 45000;
+const getDefaultSubmitDelay = () => process.env.SUBMIT_DELAY ? parseInt(process.env.SUBMIT_DELAY) : 10000;
+export const isSubmitEnabled = () => process.env.SUBMIT_ENABLED ? process.env.SUBMIT_ENABLED === "true" : true;
 
 
 export interface ServerOptions {
@@ -17,10 +17,10 @@ export interface ServerOptions {
 const getDefaultOptions = (): ServerOptions => ({
     interval: getDefaultInterval(),
     submitDelay: getDefaultSubmitDelay(),
-})
+});
 
 export interface PageFactory {
-    newPage(): Promise<Page>
+    newPage(): Promise<Page>;
 }
 
 export abstract class Server<T> {
@@ -30,7 +30,7 @@ export abstract class Server<T> {
     logPrefix: string;
     private options: ServerOptions;
     private pageFactory: PageFactory;
-    logger: Logger
+    logger: Logger;
 
     protected constructor(identifier: string,
                           pageFactory: PageFactory,
@@ -42,46 +42,48 @@ export abstract class Server<T> {
         this.repository = repository;
         this.options = options;
         this.logPrefix = `[${this.identifier}] `;
-        this.logger = new ConsoleLogger(identifier)
+        this.logger = new ConsoleLogger(identifier);
     }
 
-    async prepare(page: Page): Promise<void> {}
+    async prepare(page: Page): Promise<void> {
+    }
 
     abstract spider(page: Page): Promise<T[]>;
+
     abstract submit(page: Page, key: T): Promise<void>
 
     async start(): Promise<void> {
-        this.logger.info("starting server with interval " + this.options.interval + "ms")
+        this.logger.info("starting server with interval " + this.options.interval + "ms");
 
         while (true) {
             let page: Page;
             try {
-                page = await this.pageFactory.newPage()
+                page = await this.pageFactory.newPage();
             } catch (e) {
-                this.logger.error("Failed to create new page: ", e)
-                await sendLog("Failed to create new page: " + e)
+                this.logger.error("Failed to create new page: ", e);
+                await sendLog("Failed to create new page: " + e);
 
                 await setTimeout(1000);
-                continue
+                continue;
             }
 
             try {
-                await this.prepare(page)
+                await this.prepare(page);
             } catch (e: any) {
                 let message = `Error on prepare: ` + e;
-                this.logger.error(message)
-                await sendLog(message)
+                this.logger.error(message);
+                await sendLog(message);
 
                 await page.close();
                 await setTimeout(1000);
-                continue
+                continue;
             }
 
             try {
-                await this.run(page)
+                await this.run(page);
             } catch (e: any) {
-                this.logger.error(`Error on run: ` + e)
-                await sendLog(`Error on run: ` + e)
+                this.logger.error(`Error on run: ` + e);
+                await sendLog(`Error on run: ` + e);
 
                 // const time = new Date()
                 // this.logger.info("Saving screenshot: ", time)
@@ -89,7 +91,7 @@ export abstract class Server<T> {
                 //     .catch((e) => console.error("Failed to save screenshot", e));
 
                 await setTimeout(1000);
-                continue
+                continue;
             } finally {
                 await page.close();
             }
@@ -99,22 +101,22 @@ export abstract class Server<T> {
     }
 
     async run(page: Page) {
-        const keys = await this.spider(page)
+        const keys = await this.spider(page);
 
-        const repoKeys = await this.repository.getAll()
-        const newKeys = keys.filter((key) => !repoKeys.includes(key))
+        const repoKeys = await this.repository.getAll();
+        const newKeys = keys.filter((key) => !repoKeys.includes(key));
 
         for (const key of newKeys) {
-            const time = new Date()
-            this.logger.info("new listing found: " + key + " at " + time)
+            const time = new Date();
+            this.logger.info("new listing found: " + key + " at " + time);
             await this.submit(page, key);
             await this.repository.add(key);
-            this.logger.info("listing stored as submitted: " + key)
+            this.logger.info("listing stored as submitted: " + key);
             await setTimeout(this.options.submitDelay);
         }
     }
 
     log(message: string) {
-        this.logger.info(message)
+        this.logger.info(message);
     }
 }

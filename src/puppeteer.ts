@@ -1,7 +1,7 @@
-import puppeteer from 'puppeteer-extra'
-import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha'
-import StealthPlugin from 'puppeteer-extra-plugin-stealth'
-import AdblockerPlugin from 'puppeteer-extra-plugin-adblocker'
+import puppeteer from 'puppeteer-extra';
+import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+import AdblockerPlugin from 'puppeteer-extra-plugin-adblocker';
 import { DEFAULT_INTERCEPT_RESOLUTION_PRIORITY, Page } from "puppeteer";
 import { sendLog } from "./telegram.ts";
 
@@ -12,9 +12,9 @@ export async function newBrowser() {
             // Optionally enable Cooperative Mode for several request interceptors
             interceptResolutionPriority: DEFAULT_INTERCEPT_RESOLUTION_PRIORITY
         })
-    )
+    );
 
-    puppeteer.use(StealthPlugin())
+    puppeteer.use(StealthPlugin());
 
     puppeteer.use(
         RecaptchaPlugin({
@@ -24,7 +24,7 @@ export async function newBrowser() {
             },
             visualFeedback: true
         })
-    )
+    );
 
     return puppeteer.launch({
         headless: "new",
@@ -34,11 +34,11 @@ export async function newBrowser() {
             width: 1920,
             height: 1080
         }
-    })
+    });
 }
 
 export async function clearAndType(page: Page, selector: string, value: string) {
-    await page.waitForSelector(selector)
+    await page.waitForSelector(selector);
     let originalInputValue = await page.$eval(selector, el => (el as HTMLInputElement).value);
 
     await page.click(selector);
@@ -49,7 +49,7 @@ export async function clearAndType(page: Page, selector: string, value: string) 
     await page.keyboard.press('Backspace');
 
     const input = await page.$(selector);
-    await input!.click({ count: 3 })
+    await input!.click({count: 3});
     await page.keyboard.press('Backspace');
 
     await page.evaluate((selector) => {
@@ -57,26 +57,26 @@ export async function clearAndType(page: Page, selector: string, value: string) 
     }, selector);
 
     const clearedInputValue = await page.$eval(selector, el => (el as HTMLInputElement).value);
-    if(clearedInputValue) {
-        await sendLog(`${selector}: inputValue is not empty after clear: before[${originalInputValue}] after[${clearedInputValue}]`)
-        throw new Error(`${selector}: inputValue is not empty after clear: before[${originalInputValue}] after[${clearedInputValue}]`)
+    if (clearedInputValue) {
+        await sendLog(`${selector}: inputValue is not empty after clear: before[${originalInputValue}] after[${clearedInputValue}]`);
+        throw new Error(`${selector}: inputValue is not empty after clear: before[${originalInputValue}] after[${clearedInputValue}]`);
     }
-    if(originalInputValue !== clearedInputValue) {
-        console.log(selector + ": input value before clear: " + originalInputValue)
-        console.log(selector + ": input value after clear: " + clearedInputValue)
+    if (originalInputValue !== clearedInputValue) {
+        console.log(selector + ": input value before clear: " + originalInputValue);
+        console.log(selector + ": input value after clear: " + clearedInputValue);
     }
-    if(!originalInputValue) {
-        console.log(selector + ": original input value was empty")
+    if (!originalInputValue) {
+        console.log(selector + ": original input value was empty");
     }
-    console.log(`${selector}: typing value: ${value}`)
+    console.log(`${selector}: typing value: ${value}`);
     await page.type(selector, value);
 }
 
 export async function gotoOrReload(page: Page, url: string) {
-    if(page.url() === url) {
-        await page.reload()
+    if (page.url() === url) {
+        await page.reload();
     } else {
-        await page.goto(url)
+        await page.goto(url);
     }
 }
 
@@ -94,7 +94,7 @@ export async function filterLargeSizeRequests(page: Page) {
 }
 
 export async function getText(page: Page, selector: string) {
-    const ele = await page.waitForSelector(selector)
+    const ele = await page.waitForSelector(selector);
     return ele?.evaluate((el) => el.textContent);
 }
 
